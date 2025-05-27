@@ -1,0 +1,50 @@
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS inventory_db;
+USE inventory_db;
+
+-- Table: users
+-- Stores user information
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    role ENUM('Admin', 'Employee') NOT NULL DEFAULT 'Employee',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: items
+-- Stores information about inventory items
+CREATE TABLE IF NOT EXISTS items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    quantity INT NOT NULL DEFAULT 0,
+    available_quantity INT NOT NULL DEFAULT 0,
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: borrow_requests
+-- Stores information about item borrowing requests
+CREATE TABLE IF NOT EXISTS borrow_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    item_id INT NOT NULL,
+    quantity_requested INT NOT NULL,
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expected_return_date DATE,
+    actual_return_date TIMESTAMP NULL,
+    status ENUM('Pending', 'Approved', 'Rejected', 'Returned', 'Cancelled', 'Overdue') NOT NULL DEFAULT 'Pending',
+    admin_remarks TEXT,
+    last_updated_by_admin_id INT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
+    FOREIGN KEY (last_updated_by_admin_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ---
+-- End of script
+-- ---
